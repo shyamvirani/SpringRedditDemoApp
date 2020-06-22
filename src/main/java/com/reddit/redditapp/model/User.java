@@ -33,6 +33,7 @@ public class User {
 	@Email
 	@NotEmpty(message="email is required")
 	private String email;
+	
 	private Instant created;
 	private boolean enabled;
 	
