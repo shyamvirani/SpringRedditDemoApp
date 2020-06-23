@@ -21,7 +21,7 @@ public class MailService {
 	private final JavaMailSender mailSender;
 	private final MailContentBuilder mailContentBuilder; 
 	
-	@Async
+	
 	void sendMail(NotificationEmail notificationEmail ) {
 		MimeMessagePreparator messagePreparator = mimeMessage-> {
 			

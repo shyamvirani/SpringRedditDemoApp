@@ -1,9 +1,15 @@
 package com.reddit.redditapp.service;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.reddit.redditapp.dto.AuthenticationResponse;
+import com.reddit.redditapp.dto.LoginRequest;
 import com.reddit.redditapp.dto.RegisterRequest;
 import com.reddit.redditapp.exceptions.RedditException;
 import com.reddit.redditapp.model.NotificationEmail;
@@ -12,6 +18,7 @@ import com.reddit.redditapp.model.User;
 import com.reddit.redditapp.model.VerificationToken;
 import com.reddit.redditapp.repository.UserRepository;
 import com.reddit.redditapp.repository.VerificationTokenRepository;
+import com.reddit.redditapp.security.JwtProvider;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +37,8 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final VerificationTokenRepository verificationTokenRepository;
 	private final MailService mailService;
+	private final AuthenticationManager authenticationManager;
+	private final JwtProvider jwtProvider;
 	
 	@Transactional
 	public void signup(RegisterRequest registerRequest) {
@@ -49,7 +58,6 @@ public class AuthService {
 	}
 	
 	
-	
 	private String generateVerificationToken(User user) {
 		String token = UUID.randomUUID().toString();
 		VerificationToken verificationToken =new VerificationToken();
@@ -60,17 +68,32 @@ public class AuthService {
 		
 		return token;
 	}
+	
+	public AuthenticationResponse login(LoginRequest loginRequest) {
+		Authentication authenticate = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+		
+		SecurityContextHolder.getContext().setAuthentication(authenticate);
+		
+		String authenticationToken=jwtProvider.generateToken(authenticate);
+		
+		return new AuthenticationResponse(authenticationToken, loginRequest.getUsername());
+	}
+	
+	
 
 
 
 	private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+	
 	public void verifyAccount(String token) {
 		Optional<VerificationToken> verificationTokenOptional = verificationTokenRepository.findByToken(token);
 		verificationTokenOptional.orElseThrow(() -> new RedditException("Invalid Token"));
 		fetchUserAndEnable(verificationTokenOptional.get());
 		}
+	
 	
 		@Transactional
 		private void fetchUserAndEnable(VerificationToken verificationToken) {
