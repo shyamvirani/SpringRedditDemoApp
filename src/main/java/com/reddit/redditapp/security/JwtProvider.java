@@ -2,6 +2,7 @@ package com.reddit.redditapp.security;
 
 import com.reddit.redditapp.exceptions.RedditException;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -12,6 +13,8 @@ import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
 
+import static io.jsonwebtoken.Jwts.parser;
+
 @Service
 public class JwtProvider {
 	private KeyStore keyStore;
@@ -20,7 +23,7 @@ public class JwtProvider {
 	public void init() {
 		try {
 			keyStore = KeyStore.getInstance("JKS");
-			InputStream resourceAsStream = getClass().getResourceAsStream("/springblog.jks");
+			InputStream resourceAsStream = getClass().getResourceAsStream("/redditclone.jks");
 			keyStore.load(resourceAsStream, "secret".toCharArray());
 		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
 			throw new RedditException("Exception occurred while loading keystore",e);
@@ -34,9 +37,32 @@ public class JwtProvider {
 
 	private PrivateKey getPrivateKey() {
 		try {
-			return (PrivateKey) keyStore.getKey("springblog", "secret".toCharArray());
+			return (PrivateKey) keyStore.getKey("redditclone", "secret".toCharArray());
 		} catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
 			throw new RedditException("Exception occured while retrieving public key from keystore",e);
 		}
 	}
+	
+	public boolean validateToken(String jwt) {
+        parser().setSigningKey(getPublickey()).parseClaimsJws(jwt);
+        return true;
+    }
+	private PublicKey getPublickey() {
+        try {
+            return keyStore.getCertificate("redditclone").getPublicKey();
+        } catch (KeyStoreException e) {
+            throw new RedditException("Exception occured while retrieving public key from keystore",e);
+        }
+    }
+
+    public String getUsernameFromJWT(String token) {
+        Claims claims = parser()
+                .setSigningKey(getPublickey())
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+	
+	
 }

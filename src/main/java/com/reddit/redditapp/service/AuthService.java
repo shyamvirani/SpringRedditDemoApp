@@ -4,6 +4,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,16 +93,24 @@ public class AuthService {
 		Optional<VerificationToken> verificationTokenOptional = verificationTokenRepository.findByToken(token);
 		verificationTokenOptional.orElseThrow(() -> new RedditException("Invalid Token"));
 		fetchUserAndEnable(verificationTokenOptional.get());
-		}
-	
-	
-		@Transactional
-		private void fetchUserAndEnable(VerificationToken verificationToken) {
+	}
+
+	@Transactional
+	private void fetchUserAndEnable(VerificationToken verificationToken) {
 		String username = verificationToken.getUser().getUsername();
-		User user = userRepo.findByUsername(username).orElseThrow(() -> new RedditException("User Not Found with id - " + username));
+		User user = userRepo.findByUsername(username)
+				.orElseThrow(() -> new RedditException("User Not Found with id - " + username));
 		user.setEnabled(true);
 		userRepo.save(user);
-		}
+	}
+
+	@Transactional(readOnly = true)
+	User getCurrentUser() {
+		org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder
+				.getContext().getAuthentication().getPrincipal();
+		return userRepo.findByUsername(principal.getUsername())
+				.orElseThrow(() -> new UsernameNotFoundException("User name not found - " + principal.getUsername()));
+	}
 	
 
 }
