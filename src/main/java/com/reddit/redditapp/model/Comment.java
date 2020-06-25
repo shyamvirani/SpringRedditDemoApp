@@ -19,7 +19,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class Comment {
 	 @Id
 	    @GeneratedValue(strategy = IDENTITY)
-	    private Long CommentId;
+	    private Long commentId;
 	    @NotEmpty
 	    private String text;
 	    @ManyToOne(fetch = LAZY)
