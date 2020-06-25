@@ -4,6 +4,8 @@ import com.reddit.redditapp.exceptions.RedditException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -12,13 +14,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.time.Instant;
+import java.util.Date;
+
+import static java.util.Date.from;
 
 import static io.jsonwebtoken.Jwts.parser;
 
 @Service
 public class JwtProvider {
 	private KeyStore keyStore;
-
+	
+	/*
+	 * @Value("${jwt.expiration.time}") private Long jwtExpirationInMillis;
+	 */
 	@PostConstruct
 	public void init() {
 		try {
@@ -30,10 +39,16 @@ public class JwtProvider {
 		}
 	}
 
-	public String generateToken(Authentication authentication) {
-		org.springframework.security.core.userdetails.User principal = (User) authentication.getPrincipal();
-		return Jwts.builder().setSubject(principal.getUsername()).signWith(getPrivateKey()).compact();
-	}
+
+    public String generateToken(Authentication authentication) {
+        User principal = (User) authentication.getPrincipal();
+        return Jwts.builder()
+                .setSubject(principal.getUsername())
+                .setIssuedAt(from(Instant.now()))
+                .signWith(getPrivateKey())
+               // .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .compact();
+    }
 
 	private PrivateKey getPrivateKey() {
 		try {
@@ -42,6 +57,17 @@ public class JwtProvider {
 			throw new RedditException("Exception occured while retrieving public key from keystore",e);
 		}
 	}
+	
+
+    public String generateTokenWithUserName(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(from(Instant.now()))
+                .signWith(getPrivateKey())
+                //.setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .compact();
+    }
+	
 	
 	public boolean validateToken(String jwt) {
         parser().setSigningKey(getPublickey()).parseClaimsJws(jwt);
@@ -63,6 +89,9 @@ public class JwtProvider {
 
         return claims.getSubject();
     }
-	
+    
+	/*
+	 * public Long getJwtExpirationInMillis() { return jwtExpirationInMillis; }
+	 */
 	
 }

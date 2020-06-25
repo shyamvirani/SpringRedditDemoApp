@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 
+import org.hibernate.annotations.CascadeType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,8 +25,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Builder
 public class Subreddit {
-	
-	
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,11 +38,11 @@ public class Subreddit {
 	
 	private Instant createdDate;
     
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY,cascade = javax.persistence.CascadeType.REMOVE)
 	private List<Post> posts;
 	
 
-	 @ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY,cascade=javax.persistence.CascadeType.REMOVE)
 	private User user;
 
 }

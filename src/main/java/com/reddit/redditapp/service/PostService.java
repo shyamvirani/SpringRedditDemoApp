@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.reddit.redditapp.dto.PostRequest;
 import com.reddit.redditapp.dto.PostResponse;
 import com.reddit.redditapp.exceptions.PostNotFoundException;
+import com.reddit.redditapp.exceptions.RedditException;
 import com.reddit.redditapp.exceptions.SubredditnotFoundException;
 import com.reddit.redditapp.mapper.PostMapper;
 import com.reddit.redditapp.model.Post;
@@ -73,6 +74,15 @@ public class PostService {
 	                .stream()
 	                .map(postMapper::mapToDto)
 	                .collect(toList());
+	    }
+
+	    public Integer countPostsBySubreddit(Long subredditId)
+	    {
+
+	        Subreddit subreddit = subredditRepository.findById(subredditId)
+	        		.orElseThrow(()->new RedditException("No post with this subreddit "+subredditId));
+	        List<Post> posts = postRepository.findAllBySubreddit(subreddit);
+	        return posts.size();
 	    }
 	
 	

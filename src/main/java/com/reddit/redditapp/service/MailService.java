@@ -21,16 +21,15 @@ public class MailService {
 	private final JavaMailSender mailSender;
 	private final MailContentBuilder mailContentBuilder; 
 	
-	
 	void sendMail(NotificationEmail notificationEmail ) {
 		MimeMessagePreparator messagePreparator = mimeMessage-> {
 			
 			MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
-			
+
 			messageHelper.setFrom("gevola7746@unomail9.com");
-			 messageHelper.setTo(notificationEmail.getRecipient());
-	            messageHelper.setSubject(notificationEmail.getSubject());
-	            messageHelper.setText(mailContentBuilder.build(notificationEmail.getBody()));
+			messageHelper.setTo(notificationEmail.getRecipient());
+			messageHelper.setSubject(notificationEmail.getSubject());
+			messageHelper.setText(mailContentBuilder.build(notificationEmail.getBody()));
 	        };
 			
 		
@@ -41,9 +40,6 @@ public class MailService {
 	            log.error("Exception occurred when sending mail", e);
 	            throw new RedditException("Exception occurred when sending mail to " + notificationEmail.getRecipient(), e);
 	        }
-		
-		
-		
 		
 		
 	}
