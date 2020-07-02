@@ -1,5 +1,7 @@
 package com.reddit.redditapp.controller;
 
+import static org.springframework.http.ResponseEntity.status;
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -15,13 +17,12 @@ import com.reddit.redditapp.dto.PostRequest;
 import com.reddit.redditapp.dto.PostResponse;
 import com.reddit.redditapp.service.PostService;
 
-import static org.springframework.http.ResponseEntity.status;
-
 import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("api/posts")
 @AllArgsConstructor
+
 public class PostController {
 	
 	public PostService postService;

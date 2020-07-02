@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 
 @EnableWebSecurity
 @AllArgsConstructor
+
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private final UserDetailsService userDetailsService;
