@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.reddit.redditapp.dto.PostRequest;
 import com.reddit.redditapp.dto.PostResponse;
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 @Transactional
+
 public class PostService {
 	
 	private final PostRepository postRepository;
@@ -49,7 +51,7 @@ public class PostService {
 	                .orElseThrow(() -> new PostNotFoundException(id.toString()));
 	        return postMapper.mapToDto(post);
 	}
-	   @Transactional(readOnly = true)
+	  
 	    public List<PostResponse> getAllPosts() {
 	        return postRepository.findAll()
 	                .stream()

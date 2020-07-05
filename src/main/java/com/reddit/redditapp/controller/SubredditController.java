@@ -18,19 +18,24 @@ import com.reddit.redditapp.dto.SubredditDto;
 import com.reddit.redditapp.service.SubredditService;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("api/subreddit")
+@RequestMapping("/api/subreddit")
+
 @AllArgsConstructor
+
 public class SubredditController {
 
 	private final SubredditService subredditService;
 	
 	@GetMapping
-    public List<SubredditDto> getAllSubreddits() {
-        return subredditService.getAll();
-    }
-
+    public ResponseEntity<List<SubredditDto>> getAllSubreddits() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(subredditService.getAll());
+	}
+	
     @GetMapping("/{subredditId}")
     public SubredditDto getSubreddit(@PathVariable Long subredditId) {
         return subredditService.getSubreddit(subredditId);

@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("/api/auth")
 @AllArgsConstructor
 
 public class AuthController {
@@ -33,7 +33,7 @@ public class AuthController {
 	private final RefreshTokenService refreshTokenService;
 
 	
-	@GetMapping("accountVerification/{token}")
+	@GetMapping("/accountVerification/{token}")
 	public ResponseEntity<String> verifyAccount(@PathVariable String token) {
 	authService.verifyAccount(token);
 	return new ResponseEntity<>("Account Activated Successully", HttpStatus.OK);
