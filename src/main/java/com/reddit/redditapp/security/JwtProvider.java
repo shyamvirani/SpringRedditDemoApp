@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.time.Instant;
-import java.util.Date;
+import java.sql.Date;
 
 import static java.util.Date.from;
 
@@ -24,11 +24,10 @@ import static io.jsonwebtoken.Jwts.parser;
 @Service
 public class JwtProvider {
 	private KeyStore keyStore;
-	
-	
-	  @Value("1000000")
-	  private Long jwtExpirationInMillis;
-	 
+
+	@Value("10000000")
+	private Long jwtExpirationInMillis;
+
 	@PostConstruct
 	public void init() {
 		try {
@@ -36,63 +35,51 @@ public class JwtProvider {
 			InputStream resourceAsStream = getClass().getResourceAsStream("/redditclone.jks");
 			keyStore.load(resourceAsStream, "secret".toCharArray());
 		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-			throw new RedditException("Exception occurred while loading keystore",e);
+			throw new RedditException("Exception occurred while loading keystore", e);
 		}
 	}
 
-
-    public String generateToken(Authentication authentication) {
-        User principal = (User) authentication.getPrincipal();
-        return Jwts.builder()
-                .setSubject(principal.getUsername())
-                .setIssuedAt(from(Instant.now()))
-                .signWith(getPrivateKey())
-                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
-                .compact();
-    }
+	public String generateToken(Authentication authentication) {
+		User principal = (User) authentication.getPrincipal();
+		return Jwts.builder().setSubject(principal.getUsername()).setIssuedAt(from(Instant.now()))
+				.signWith(getPrivateKey()).setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+				.compact();
+	}
 
 	private PrivateKey getPrivateKey() {
 		try {
 			return (PrivateKey) keyStore.getKey("redditclone", "secret".toCharArray());
 		} catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
-			throw new RedditException("Exception occured while retrieving public key from keystore",e);
+			throw new RedditException("Exception occured while retrieving public key from keystore", e);
 		}
 	}
-	
 
-    public String generateTokenWithUserName(String username) {
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(from(Instant.now()))
-                .signWith(getPrivateKey())
-                 .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
-                .compact();
-    }
-	
-	
+	public String generateTokenWithUserName(String username) {
+		return Jwts.builder().setSubject(username).setIssuedAt(from(Instant.now())).signWith(getPrivateKey())
+				.setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis))).compact();
+	}
+
 	public boolean validateToken(String jwt) {
-        parser().setSigningKey(getPublickey()).parseClaimsJws(jwt);
-        return true;
-    }
+		parser().setSigningKey(getPublickey()).parseClaimsJws(jwt);
+		return true;
+	}
+
 	private PublicKey getPublickey() {
-        try {
-            return keyStore.getCertificate("redditclone").getPublicKey();
-        } catch (KeyStoreException e) {
-            throw new RedditException("Exception occured while retrieving public key from keystore",e);
-        }
-    }
+		try {
+			return keyStore.getCertificate("redditclone").getPublicKey();
+		} catch (KeyStoreException e) {
+			throw new RedditException("Exception occured while retrieving public key from keystore", e);
+		}
+	}
 
-    public String getUsernameFromJWT(String token) {
-        Claims claims = parser()
-                .setSigningKey(getPublickey())
-                .parseClaimsJws(token)
-                .getBody();
+	public String getUsernameFromJWT(String token) {
+		Claims claims = parser().setSigningKey(getPublickey()).parseClaimsJws(token).getBody();
 
-        return claims.getSubject();
-    }
-    
-	
-	  public Long getJwtExpirationInMillis() { return jwtExpirationInMillis; }
-	 
-	
+		return claims.getSubject();
+	}
+
+	public Long getJwtExpirationInMillis() {
+		return jwtExpirationInMillis;
+	}
+
 }
