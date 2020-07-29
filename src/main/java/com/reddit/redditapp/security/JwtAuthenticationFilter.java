@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -51,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String bearerToken = httpServletRequest.getHeader("Authorization");
 
 		
-		if(StringUtils.hasText(bearerToken)&& bearerToken.startsWith("Bearer")) {
+		if(StringUtils.hasText(bearerToken)&& bearerToken.startsWith("Bearer ")) {
 			return bearerToken.substring(7);
 		}
 		return bearerToken;

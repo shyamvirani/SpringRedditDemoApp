@@ -26,7 +26,7 @@ public class MailService {
 			
 			MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
 
-			messageHelper.setFrom("gevola7746@unomail9.com");
+			messageHelper.setFrom("service.redditapp@email.com");
 			messageHelper.setTo(notificationEmail.getRecipient());
 			messageHelper.setSubject(notificationEmail.getSubject());
 			messageHelper.setText(mailContentBuilder.build(notificationEmail.getBody()));

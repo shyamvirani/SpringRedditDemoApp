@@ -17,14 +17,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.reddit.redditapp.security.JwtAuthenticationFilter;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @EnableWebSecurity
 @AllArgsConstructor
 
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
+	@Autowired
 	private final UserDetailsService userDetailsService;
-	
+	@Autowired
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	
 	@Bean(BeanIds.AUTHENTICATION_MANAGER)
