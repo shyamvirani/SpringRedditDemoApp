@@ -23,6 +23,7 @@ public class CommentController {
 	 
 	
 	private final CommentService commentService;
+	
 	@PostMapping
 	public ResponseEntity<Void> createComment(@RequestBody CommentDto commentDto){
 		commentService.save(commentDto);
@@ -32,15 +33,14 @@ public class CommentController {
 	@GetMapping("/bypost/{postId}")
 	public ResponseEntity<List<CommentDto>> getAllCommentsForPost(@PathVariable Long postId){
 		return ResponseEntity.status(HttpStatus.OK)
-				.body(commentService.getAllcommentsForPost(postId));
+				.body(commentService.getAllCommentsForPost(postId));
 		
 		
 	}
 	@GetMapping("/byusername/{username}")
 	public ResponseEntity<List<CommentDto>> getAllCommentsForUser(@PathVariable String username){
 		return ResponseEntity.status(HttpStatus.OK)
-				.body(commentService.getAllCommentForUser(username));
-		
+				.body(commentService.getAllCommentsForuser(username));
 		
 	}
 	

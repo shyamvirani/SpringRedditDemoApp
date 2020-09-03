@@ -1,5 +1,12 @@
 package com.reddit.redditapp.service;
 
+import static java.time.Instant.now;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +24,6 @@ import com.reddit.redditapp.dto.RegisterRequest;
 import com.reddit.redditapp.exceptions.RedditException;
 import com.reddit.redditapp.model.NotificationEmail;
 import com.reddit.redditapp.model.User;
-
 import com.reddit.redditapp.model.VerificationToken;
 import com.reddit.redditapp.repository.UserRepository;
 import com.reddit.redditapp.repository.VerificationTokenRepository;
@@ -26,18 +32,13 @@ import com.reddit.redditapp.security.JwtProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static java.time.Instant.now;
-
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
 @Service
 @AllArgsConstructor
 @Slf4j
 @Transactional
 public class AuthService {
-
+	
+	
 	private final UserRepository userRepo;
 	private final PasswordEncoder passwordEncoder;
 	private final VerificationTokenRepository verificationTokenRepository;
@@ -56,12 +57,15 @@ public class AuthService {
 		user.setCreated(now());
 		user.setEnabled(false);
 		userRepo.save(user);
+	
+        
 
 		String token = generateVerificationToken(user);
 		mailService.sendMail(new NotificationEmail("Please Activate your Account", user.getEmail(),
 				"Thank you for signing up to Spring Reddit, "
 						+ "please click on the below url to activate your account : "
 						+ "http://localhost:8080/api/auth/accountVerification/" + token));
+		
 	}
 
 	private String generateVerificationToken(User user) {
@@ -82,8 +86,7 @@ public class AuthService {
 
 		String authenticationToken = jwtProvider.generateToken(authenticate);
 
-		// return new AuthenticationResponse(authenticationToken,
-		// loginRequest.getUsername());
+	    
 		return AuthenticationResponse.builder().authenticationToken(authenticationToken)
 				.refreshToken(refreshTokenService.generateRefreshToken().getToken())
 				.expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))

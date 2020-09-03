@@ -23,47 +23,49 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class CommentService {
+    private static final String POST_URL = "";
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final AuthService authService;
+    private final CommentMapper commentMapper;
+    private final CommentRepository commentsRepository;
+    private final MailService mailService;
+    private final MailContentBuilder mailContentBuilder;
 
-	private static final String POST_URL = "";
-	private final PostRepository postRepository;
-	private final UserRepository userRepository;
-	private final AuthService authService;
-	private final CommentMapper commentMapper;
-	private final CommentRepository commentRepository;
-	private final MailContentBuilder mailContentBuilder;
-	private final MailService mailService;
+    
+    public void save(CommentDto commentDto){
+        Post post = postRepository.findById(commentDto.getPostId())
+                .orElseThrow(() -> new PostNotFoundException("Post id :" + commentDto.getPostId().toString()+ "not found for comment "));
 
-	public void save(CommentDto commentDto) {
-		Post post = postRepository.findById(commentDto.getPostId())
-				.orElseThrow(() -> new PostNotFoundException(commentDto.getPostId().toString()));
+        Comment comments = commentMapper.map(commentDto, post, authService.getCurrentUser());
+        commentsRepository.save(comments);
 
-		Comment comment = commentMapper.map(commentDto, post, authService.getCurrentUser());
-		commentRepository.save(comment);
+        String message = mailContentBuilder.build(post.getUser().getUsername() + " posted a comment on your post." + POST_URL);
+        sendCommentNotification(message, post.getUser());
 
-		String message = mailContentBuilder
-				.build(post.getUser().getUsername() + "posted comment on your post" + POST_URL);
-		sendCommentNotification(message, post.getUser());
-		// log.info(post.getUser().toString());
-	     //log.info(authService.getCurrentUser().toString());
+    }
 
-	}
+    private void sendCommentNotification(String message, User user) {
+        mailService.sendMail(new NotificationEmail(user.getUsername() + " Commented on your post", user.getEmail(), message));
+    }
 
-	public void sendCommentNotification(String message, User user) {
 
-		mailService.sendMail(
-				new NotificationEmail(user.getUsername() + " commented on your post", user.getEmail(), message));
+    public List<CommentDto> getAllCommentsForPost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException("Post not Found id : " + id.toString()));
 
-	}  
+        return commentsRepository.findByPost(post)
+                .stream()
+                .map(commentMapper :: mapToDto)
+                .collect(toList());
+    }
 
-	public List<CommentDto> getAllcommentsForPost(Long postId) {
-		Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("post not found with postid "+postId.toString()));
-		return commentRepository.findByPost(post).stream().map(commentMapper::mapToDto).collect(toList());
-
-	}
-
-	public List<CommentDto> getAllCommentForUser(String userName) {
-		User user = userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("user not found with username" +userName));
-		return commentRepository.findAllByUser(user).stream().map(commentMapper::mapToDto).collect(toList());
-	}
-
+    public List<CommentDto> getAllCommentsForuser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(()-> new UsernameNotFoundException("User not found with name:" + username));
+        return commentsRepository.findAllByUser(user)
+                .stream()
+                .map(commentMapper :: mapToDto)
+                .collect(toList());
+    }
 }

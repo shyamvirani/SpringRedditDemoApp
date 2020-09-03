@@ -26,38 +26,36 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 
 public class PostController {
-	
+
 	private final PostService postService;
-	
+
 	@PostMapping
-	public ResponseEntity<Void> createPost(@RequestBody PostRequest postRequest){
+	public ResponseEntity<Void> createPost(@RequestBody PostRequest postRequest) {
 		postService.save(postRequest);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
+
 	@GetMapping
-	public ResponseEntity<List<PostResponse>> getAllPosts(){
+	public ResponseEntity<List<PostResponse>> getAllPosts() {
 		return status(HttpStatus.OK).body(postService.getAllPosts());
 	}
-	
+
 	@GetMapping("/{id}")
-	public ResponseEntity<PostResponse> getPost(@PathVariable Long id){
+	public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
 		return status(HttpStatus.OK).body(postService.getPost(id));
-		
+
 	}
-	
+
 	@GetMapping("/bysubreddit/{id}")
-	public ResponseEntity<List<PostResponse>> getPostsBySubreddit(@PathVariable Long id){
+	public ResponseEntity<List<PostResponse>> getPostsBySubreddit(@PathVariable Long id) {
 		return status(HttpStatus.OK).body(postService.getPostsBySubreddit(id));
-		
+
 	}
-	
+
 	@GetMapping("/byusername/{username}")
-	public ResponseEntity<List<PostResponse>> getPostsByUsername(@PathVariable String username){
+	public ResponseEntity<List<PostResponse>> getPostsByUsername(@PathVariable String username) {
 		return status(HttpStatus.OK).body(postService.getPostsByUsername(username));
-		
+
 	}
-	
-	
-	
-	
+
 }

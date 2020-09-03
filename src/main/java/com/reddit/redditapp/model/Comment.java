@@ -1,7 +1,7 @@
 package com.reddit.redditapp.model;
 
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,18 +16,23 @@ import static javax.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 public class Comment {
-	 @Id
-	    @GeneratedValue(strategy = IDENTITY)
-	    private Long commentId;
-	    @NotEmpty
-	    private String text;
-	    @ManyToOne(fetch = LAZY)
-	    @JoinColumn(name = "postId", referencedColumnName = "postId")
-	    private Post post;
-	    private Instant createdDate;
-	    @ManyToOne(fetch = LAZY)
-	    @JoinColumn(name = "userId", referencedColumnName = "userId")
-	    private User user;
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	private Long commentId;
+
+	@NotEmpty
+	private String text;
+
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "postId", referencedColumnName = "postId")
+	private Post post;
+
+	private Instant createdDate;
+
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "userId", referencedColumnName = "userId")
+	private User user;
 
 }

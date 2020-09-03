@@ -1,6 +1,7 @@
  package com.reddit.redditapp.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 
 @EnableWebSecurity
 @AllArgsConstructor
+@EnableAutoConfiguration
 
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
@@ -47,6 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/api/posts/**").permitAll()
 		.antMatchers("/api/comments/**").permitAll()
 		.antMatchers("/api/votes/**").permitAll()
+		.antMatchers("/verify/captcha/**").permitAll()
 
 		.antMatchers(HttpMethod.GET, "/api/subreddit")
 		.permitAll()
@@ -56,13 +59,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.permitAll()
 		.antMatchers(HttpMethod.GET, "/api/posts/**")
 		.permitAll()
-		.antMatchers(HttpMethod.GET, "/api/comments/")
+		.antMatchers(HttpMethod.GET, "/api/comments")
 		.permitAll()
 		.antMatchers(HttpMethod.GET, "/api/comments/**")
 		.permitAll()
-
 		.antMatchers(HttpMethod.GET, "/api/votes/**")
 		.permitAll()
+		.antMatchers(HttpMethod.GET,"/verify/captcha")
+		.permitAll()
+		.antMatchers(HttpMethod.GET,"/verify/captcha/**")
+		.permitAll()
+		
         .antMatchers("/v2/api-docs",
                 "/configuration/ui",
                 "/swagger-resources/**",
